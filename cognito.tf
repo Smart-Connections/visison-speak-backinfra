@@ -7,6 +7,9 @@ resource "aws_cognito_user_pool" "main" {
   admin_create_user_config {
     allow_admin_create_user_only = false
   }
+  lambda_config {
+    pre_sign_up = module.lambda_functions["cognito_user_auto_confirm"].arn
+  }
 }
 
 resource "aws_cognito_user_pool_domain" "main" {
@@ -35,4 +38,15 @@ resource "aws_cognito_resource_server" "api" {
     scope_name        = "full_access"
     scope_description = "Access to all APIs"
   }
+}
+
+resource "aws_lambda_permission" "cognito_triggers" {
+  foreach = {
+    pre_sign_up = module.lambda_functions["cognito_user_auto_confirm"].function_name
+  }
+  statement_id  = "AllowExecutionFromCognito"
+  action        = "lambda:InvokeFunction"
+  function_name = each.value
+  principal     = "cognito-idp.amazonaws.com"
+  source_arn    = aws_cognito_user_pool.main.arn
 }

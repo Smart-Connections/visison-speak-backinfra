@@ -29,6 +29,14 @@ resource "aws_lambda_permission" "allow_execution_from_api_gateway" {
   principal     = "apigateway.amazonaws.com"
 }
 
+output "arn" {
+  value = aws_lambda_function.main.arn
+}
+
+output "function_name" {
+  value = aws_lambda_function.main.function_name
+}
+
 output "invoke_arn" {
   value = aws_lambda_function.main.invoke_arn
 }
