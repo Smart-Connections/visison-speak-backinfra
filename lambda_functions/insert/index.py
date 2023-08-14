@@ -12,9 +12,14 @@ env = os.environ.get("ENV")
 
 
 def lambda_handler(event, context):
+    # requestContext 内の authorizer オブジェクトからクレームを取得
+    claims = event["requestContext"]["authorizer"]["claims"]
+
+    # Cognito の UserID (sub claim) を取得
+    user_id = claims["sub"]
     params = json.loads(event["body"])
     item = {
-        "UserId": params["user_id"],
+        "UserId": user_id,
         "Name": params["name"],
         "Timestamp": int(time.mktime(datetime.datetime.now().timetuple())),
     }
