@@ -41,7 +41,7 @@ resource "aws_cognito_resource_server" "api" {
 }
 
 resource "aws_lambda_permission" "cognito_triggers" {
-  foreach = {
+  for_each = {
     pre_sign_up = module.lambda_functions["cognito_user_auto_confirm"].function_name
   }
   statement_id  = "AllowExecutionFromCognito"
