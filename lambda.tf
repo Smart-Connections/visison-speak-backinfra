@@ -15,6 +15,11 @@ module "lambda_functions" {
         "ENV"        = var.environment
       }
     },
+    "cognito_user_auto_confirm" = {
+      lambda_environments = {
+        "ENV" = var.environment
+      }
+    },
   }
   source              = "./modules/lambda"
   function_name       = each.key
