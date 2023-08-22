@@ -5,28 +5,8 @@ resource "aws_dynamodb_table" "chat_threads" {
   write_capacity = 5
 
   attribute {
-    name = "chat_thread_id"
-    type = "S"
-  }
-
-  attribute {
     name = "cognito_user_id"
     type = "S"
-  }
-
-  attribute {
-    name = "image_path"
-    type = "S"
-  }
-
-  attribute {
-    name = "topic"
-    type = "S"
-  }
-
-  attribute {
-    name = "created_timestamp"
-    type = "N"
   }
 
   attribute {
@@ -45,11 +25,6 @@ resource "aws_dynamodb_table" "chat_messages" {
   write_capacity = 5
 
   attribute {
-    name = "chat_message_id"
-    type = "S"
-  }
-
-  attribute {
     name = "chat_thread_id"
     type = "S"
   }
@@ -57,26 +32,6 @@ resource "aws_dynamodb_table" "chat_messages" {
   attribute {
     name = "cognito_user_id"
     type = "S"
-  }
-
-  attribute {
-    name = "sender_type"
-    type = "S"
-  }
-
-  attribute {
-    name = "english_message"
-    type = "S"
-  }
-
-  attribute {
-    name = "japanese_message"
-    type = "S"
-  }
-
-  attribute {
-    name = "read"
-    type = "BOOL"
   }
 
   attribute {

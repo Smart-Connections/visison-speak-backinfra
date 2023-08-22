@@ -11,7 +11,7 @@ module "lambda_functions" {
     },
     "insert" = {
       lambda_environments = {
-        "TABLE_NAME" = aws_dynamodb_table.users_table.name
+        "TABLE_NAME" = aws_dynamodb_table.chat_threads.name
         "ENV"        = var.environment
       }
     },
