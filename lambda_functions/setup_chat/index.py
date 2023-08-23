@@ -76,8 +76,8 @@ def lambda_handler(event, context):
 
     extension = get_file_extension(filename)
     content_type = get_content_type(filename)
-    chat_thread_id = uuid.uuid4()
-    filename = f"{uuid.uuid4()}.{extension}"
+    chat_thread_id = str(uuid.uuid4())
+    filename = f"{str(uuid.uuid4())}{extension}"
     s3_object_key = f"users/{user_id}/chat_threads/{chat_thread_id}/{filename}"
 
     s3_client.put_object(
