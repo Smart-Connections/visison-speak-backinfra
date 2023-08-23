@@ -7,7 +7,7 @@ data "archive_file" "lambda_layer" {
 resource "aws_lambda_layer_version" "main" {
   layer_name          = "vision-speak-layer-${var.environment}"
   filename            = data.archive_file.lambda_layer.output_path
-  compatible_runtimes = ["python3.9"]
+  compatible_runtimes = ["python3.11"]
   source_code_hash    = data.archive_file.lambda_layer.output_base64sha256
 }
 
