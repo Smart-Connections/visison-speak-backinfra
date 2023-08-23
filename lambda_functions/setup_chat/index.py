@@ -66,6 +66,8 @@ def lambda_handler(event, context):
     # Cognito の UserID (sub claim) を取得
     user_id = claims["sub"]
 
+    print(event)
+
     # API Gatewayからのイベントデータの解析
     body = json.loads(event["body"])
     image_data = body["image"]  # base64 encoded image
