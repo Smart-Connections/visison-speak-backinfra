@@ -1,6 +1,5 @@
 resource "aws_api_gateway_rest_api" "main" {
-  name               = "vision-speak-api-${var.environment}"
-  binary_media_types = ["multipart/form-data"]
+  name = "vision-speak-api-${var.environment}"
 }
 
 resource "aws_api_gateway_authorizer" "cognito" {

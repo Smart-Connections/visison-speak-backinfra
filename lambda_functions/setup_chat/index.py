@@ -67,10 +67,9 @@ def lambda_handler(event, context):
     user_id = claims["sub"]
 
     print(event)
-
     # API Gatewayからのイベントデータの解析
     body = json.loads(event["body"])
-    image_data = body["image"]  # base64 encoded image
+    image_data = body["image"]
     filename = body["filename"]
     # Base64デコード
     decoded_image = base64.b64decode(image_data)
