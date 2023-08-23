@@ -38,6 +38,7 @@ module "lambda_functions" {
   role_arn            = aws_iam_role.lambda_role.arn
   environment         = var.environment
   lambda_environments = each.value["lambda_environments"]
+  layers              = [aws_lambda_layer_version.main.arn]
 }
 
 resource "aws_iam_role" "lambda_role" {

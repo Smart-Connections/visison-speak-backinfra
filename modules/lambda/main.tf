@@ -2,6 +2,7 @@ variable "function_name" {}
 variable "role_arn" {}
 variable "environment" {}
 variable "lambda_environments" {}
+variable "layers" {}
 
 data "archive_file" "main" {
   type        = "zip"
@@ -17,6 +18,7 @@ resource "aws_lambda_function" "main" {
   runtime          = "python3.9"
   publish          = true
   source_code_hash = data.archive_file.main.output_base64sha256
+  layers           = var.layers
   environment {
     variables = var.lambda_environments
   }
