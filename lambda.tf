@@ -21,10 +21,12 @@ module "lambda_functions" {
         "ENV"          = var.environment
       }
     },
-    "insert" = {
+    "setup_chat" = {
       lambda_environments = {
-        "TABLE_NAME" = aws_dynamodb_table.chat_threads.name
-        "ENV"        = var.environment
+        "CHAT_THREADS_TABLE_NAME" = aws_dynamodb_table.chat_threads.name
+        "AZURE_ACCOUNT_REGION"    = var.azure_account_region
+        "AZURE_ACCOUNT_KEY"       = var.azure_account_key
+        "ENV"                     = var.environment
       }
     },
     "cognito_user_auto_confirm" = {

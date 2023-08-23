@@ -21,9 +21,9 @@ module "api_gateway_resources" {
       lambda_invoke_arn    = module.lambda_functions["test"].invoke_arn
       response_status_code = "200"
     },
-    "v1_insert" = {
+    "v1_setup_chat" = {
       http_method          = "POST"
-      lambda_invoke_arn    = module.lambda_functions["insert"].invoke_arn
+      lambda_invoke_arn    = module.lambda_functions["setup_chat"].invoke_arn
       response_status_code = "201"
     },
   }
