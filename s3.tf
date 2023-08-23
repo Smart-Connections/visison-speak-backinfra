@@ -1,4 +1,4 @@
-resource "aws_s3_bucket" "vision_speack" {
+resource "aws_s3_bucket" "vision_speak" {
   bucket = "vision-speack-${var.environment}"
 }
 
