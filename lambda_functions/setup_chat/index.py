@@ -111,7 +111,7 @@ def lambda_handler(event, context):
         "statusCode": 201,
         "body": json.dumps(
             {
-                "chat_thread": chat_thread,
+                "chat_thread_id": chat_thread_id,
                 "presigned_url": presigned_url
                 # "image_analysis": image_analysis,
             }
