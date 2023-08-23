@@ -66,7 +66,9 @@ def lambda_handler(event, context):
     # Cognito の UserID (sub claim) を取得
     user_id = claims["sub"]
 
+    # デバッグ用に出力しておくが、不要になったら消すこと
     print(event)
+
     # API Gatewayからのイベントデータの解析
     body = json.loads(event["body"])
     image_data = body["image"]
@@ -87,7 +89,7 @@ def lambda_handler(event, context):
         ContentType=content_type,
     )
 
-    created_timestamp = datetime.datetime.now().timestamp()
+    created_timestamp = int(datetime.datetime.now().timestamp())
     chat_thread = {
         "chat_thread_id": chat_thread_id,
         "cognito_user_id": user_id,
