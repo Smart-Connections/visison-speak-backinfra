@@ -14,6 +14,11 @@ resource "aws_dynamodb_table" "chat_threads" {
     type = "N"
   }
 
+  attribute {
+    name = "chat_thread_id"
+    type = "S"
+  }
+
   global_secondary_index {
     name            = "ChatThreadIdIndex"
     hash_key        = "chat_thread_id"
