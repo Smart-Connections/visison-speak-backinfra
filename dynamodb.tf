@@ -43,11 +43,6 @@ resource "aws_dynamodb_table" "chat_messages" {
   }
 
   attribute {
-    name = "cognito_user_id"
-    type = "S"
-  }
-
-  attribute {
     name = "created_timestamp"
     type = "N"
   }
