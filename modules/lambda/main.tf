@@ -19,6 +19,7 @@ resource "aws_lambda_function" "main" {
   publish          = true
   source_code_hash = data.archive_file.main.output_base64sha256
   layers           = var.layers
+  timeout          = 60
   environment {
     variables = var.lambda_environments
   }

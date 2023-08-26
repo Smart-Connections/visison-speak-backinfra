@@ -3,6 +3,7 @@ import json
 import os
 import uuid
 import datetime
+import time
 from boto3.dynamodb.conditions import Key
 
 
@@ -75,6 +76,10 @@ def lambda_handler(event, context):
     ########################################################
     # TODO ChatGPTのAPIを叩く処理を実装すること
     ########################################################
+
+    # とりあえずタイムスリープして、created_timestampが同じにならないようにする
+    # TODO GPTのAPIの実装がちゃんとできたら削除する
+    time.sleep(1)
 
     ai_sended_chat_message = {
         "chat_message_id": str(uuid.uuid4()),
