@@ -29,9 +29,10 @@ def lambda_handler(event, context):
     chat_thread_id = body["chat_thread_id"]
 
     response = chat_threads_table.query(
-        IndexName="ChatThreadIdIndex",
         KeyConditionExpression=Key("chat_thread_id").eq(chat_thread_id),
     )
+
+    print(response)
 
     if not response["Items"]:
         return {"statusCode": 403, "body": json.dumps({"message": "Not authorized."})}
@@ -46,6 +47,14 @@ def lambda_handler(event, context):
             "body": json.dumps({"message": "This thread's topic is null"}),
         }
 
+    # スレッド一覧取得で最新のものが一番上にくるように
+    # updated_timestamp更新
+    chat_threads_table.update_item(
+        Key={"chat_thread_id": chat_thread["chat_thread_id"]},
+        UpdateExpression="SET updated_timestamp = :value",
+        ExpressionAttributeValues={":value": int(datetime.datetime.now().timestamp())},
+        ReturnValues="UPDATED_NEW",
+    )
     ########################################################
     # TODO 音声ファイルが来た場合の処理を追加すること
     ########################################################

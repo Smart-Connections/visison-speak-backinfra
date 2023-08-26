@@ -45,6 +45,8 @@ def lambda_handler(event, context):
 
     chat_threads_items = response["Items"]
 
+    print(chat_threads_items)
+
     # レスポンスのフォーマットを作成
     formatted_response = {"chat_threads": []}
     for thread in chat_threads_items:
