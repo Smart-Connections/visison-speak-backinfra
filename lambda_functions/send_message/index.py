@@ -32,8 +32,6 @@ def lambda_handler(event, context):
         KeyConditionExpression=Key("chat_thread_id").eq(chat_thread_id),
     )
 
-    print(response)
-
     if not response["Items"]:
         return {"statusCode": 403, "body": json.dumps({"message": "Not authorized."})}
 

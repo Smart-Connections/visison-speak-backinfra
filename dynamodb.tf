@@ -20,7 +20,7 @@ resource "aws_dynamodb_table" "chat_threads" {
   }
 
   global_secondary_index {
-    name            = "cognito_user_index"
+    name            = "cognito_user_id"
     hash_key        = "cognito_user_id"
     range_key       = "updated_timestamp"
     write_capacity  = 5

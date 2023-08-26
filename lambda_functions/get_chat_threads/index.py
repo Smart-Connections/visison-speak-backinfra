@@ -39,13 +39,12 @@ def lambda_handler(event, context):
 
     # chat_threadsテーブルからcognito_user_idに一致するアイテムを取得
     response = chat_threads_table.query(
+        IndexName="cognito_user_id",
         KeyConditionExpression=Key("cognito_user_id").eq(cognito_user_id),
         ScanIndexForward=False,  # 降順でソート
     )
 
     chat_threads_items = response["Items"]
-
-    print(chat_threads_items)
 
     # レスポンスのフォーマットを作成
     formatted_response = {"chat_threads": []}
