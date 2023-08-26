@@ -20,15 +20,15 @@ resource "aws_dynamodb_table" "chat_threads" {
   }
 
   global_secondary_index {
-    name            = "ChatThreadIdIndex"
-    hash_key        = "chat_thread_id"
-    projection_type = "KEYS_ONLY"
-    read_capacity   = 5
+    name            = "cognito_user_index"
+    hash_key        = "cognito_user_id"
+    range_key       = "updated_timestamp"
     write_capacity  = 5
+    read_capacity   = 5
+    projection_type = "ALL"
   }
 
-  hash_key  = "cognito_user_id"
-  range_key = "updated_timestamp"
+  hash_key = "chat_thread_id"
 }
 
 resource "aws_dynamodb_table" "chat_messages" {
@@ -54,13 +54,4 @@ resource "aws_dynamodb_table" "chat_messages" {
 
   hash_key  = "chat_thread_id"
   range_key = "created_timestamp"
-
-  global_secondary_index {
-    name            = "cognito_user_index"
-    hash_key        = "cognito_user_id"
-    range_key       = "created_timestamp"
-    write_capacity  = 5
-    read_capacity   = 5
-    projection_type = "ALL"
-  }
 }
