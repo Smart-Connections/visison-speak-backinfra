@@ -39,18 +39,15 @@ def lambda_handler(event, context):
 
     # chat_threadsテーブルからcognito_user_idに一致するアイテムを取得
     response = chat_threads_table.query(
-        KeyConditionExpression=Key("cognito_user_id").eq(cognito_user_id)
+        KeyConditionExpression=Key("cognito_user_id").eq(cognito_user_id),
+        ScanIndexForward=False,  # 降順でソート
     )
 
-    # chat_threadsのアイテムをupdated_timestampでソート
     chat_threads_items = response["Items"]
-    sorted_chat_threads = sorted(
-        chat_threads_items, key=lambda x: x["updated_timestamp"], reverse=True
-    )
 
     # レスポンスのフォーマットを作成
     formatted_response = {"chat_threads": []}
-    for thread in sorted_chat_threads:
+    for thread in chat_threads_items:
         # chat_messagesテーブルから最新のメッセージを取得
         response = chat_messages_table.query(
             KeyConditionExpression=Key("chat_thread_id").eq(thread["chat_thread_id"]),
@@ -65,7 +62,7 @@ def lambda_handler(event, context):
                 "chat_thread_id": thread["chat_thread_id"],
                 "image_url": generate_presigned_url(thread["image_path"]),
                 "topic": thread["topic"],
-                "updated_timestamp": thread["updated_timestamp"],
+                "updated_timestamp": int(thread["updated_timestamp"]),
                 "latest_message": {
                     "english_message": latest_message["english_message"],
                     "read": latest_message["read"],
