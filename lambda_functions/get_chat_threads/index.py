@@ -30,8 +30,8 @@ def generate_presigned_url(object_key, expiration=300):
 
 def lambda_handler(event, context):
     # DynamoDBオブジェクトを取得
-    chat_threads_table = dynamodb.Table("chat_threads")
-    chat_messages_table = dynamodb.Table("chat_messages")
+    chat_threads_table = dynamodb.Table(chat_threads_table_name)
+    chat_messages_table = dynamodb.Table(chat_messages_table_name)
     # requestContext 内の authorizer オブジェクトからクレームを取得
     claims = event["requestContext"]["authorizer"]["claims"]
     # Cognito の UserID (sub claim) を取得
