@@ -46,7 +46,7 @@ def lambda_handler(event, context):
 
     chat_threads_items = response["Items"]
 
-    # レスポンスのフォーマットを作成
+    # レスポンスを作成
     formatted_response = {"chat_threads": []}
     for thread in chat_threads_items:
         # chat_messagesテーブルから最新のメッセージを取得

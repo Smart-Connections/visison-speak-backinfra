@@ -31,6 +31,11 @@ module "api_gateway_resources" {
       lambda_invoke_arn    = module.lambda_functions["get_chat_threads"].invoke_arn
       response_status_code = "200"
     },
+    "v1_get_chat_messages" = {
+      http_method          = "GET"
+      lambda_invoke_arn    = module.lambda_functions["get_chat_messages"].invoke_arn
+      response_status_code = "200"
+    },
     "v1_send_message" = {
       http_method          = "POST"
       lambda_invoke_arn    = module.lambda_functions["send_message"].invoke_arn

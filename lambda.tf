@@ -38,6 +38,13 @@ module "lambda_functions" {
         "ENV"                      = var.environment
       }
     },
+    "get_chat_messages" = {
+      lambda_environments = {
+        "CHAT_THREADS_TABLE_NAME"  = aws_dynamodb_table.chat_threads.name
+        "CHAT_MESSAGES_TABLE_NAME" = aws_dynamodb_table.chat_messages.name
+        "ENV"                      = var.environment
+      }
+    },
     "send_message" = {
       lambda_environments = {
         "CHAT_THREADS_TABLE_NAME"  = aws_dynamodb_table.chat_threads.name
