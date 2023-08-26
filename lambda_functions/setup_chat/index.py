@@ -94,6 +94,7 @@ def lambda_handler(event, context):
         "chat_thread_id": chat_thread_id,
         "cognito_user_id": user_id,
         "image_path": s3_object_key,
+        "topic": "",
         "created_timestamp": created_timestamp,
         "updated_timestamp": created_timestamp,
     }
