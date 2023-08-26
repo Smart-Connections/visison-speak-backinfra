@@ -28,14 +28,16 @@ def lambda_handler(event, context):
     # message_voice = body["message_voice"]
     chat_thread_id = body["chat_thread_id"]
 
-    response = chat_threads_table.query(
-        KeyConditionExpression=Key("chat_thread_id").eq(chat_thread_id),
+    response = chat_threads_table.get_item(
+        Key={
+            "chat_thread_id": chat_thread_id,
+        }
     )
 
-    if not response["Items"]:
+    if not response["Item"]:
         return {"statusCode": 403, "body": json.dumps({"message": "Not authorized."})}
 
-    chat_thread = response["Items"][0]
+    chat_thread = response["Items"]
 
     if not chat_thread["cognito_user_id"] == cognito_user_id:
         return {"statusCode": 403, "body": json.dumps({"message": "Not authorized."})}

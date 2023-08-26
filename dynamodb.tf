@@ -38,6 +38,11 @@ resource "aws_dynamodb_table" "chat_messages" {
   write_capacity = 5
 
   attribute {
+    name = "chat_message_id"
+    type = "S"
+  }
+
+  attribute {
     name = "chat_thread_id"
     type = "S"
   }
@@ -47,6 +52,14 @@ resource "aws_dynamodb_table" "chat_messages" {
     type = "N"
   }
 
-  hash_key  = "chat_thread_id"
-  range_key = "created_timestamp"
+  global_secondary_index {
+    name            = "chat_thread_id"
+    hash_key        = "chat_thread_id"
+    range_key       = "created_timestamp"
+    write_capacity  = 5
+    read_capacity   = 5
+    projection_type = "ALL"
+  }
+
+  hash_key = "chat_message_id"
 }

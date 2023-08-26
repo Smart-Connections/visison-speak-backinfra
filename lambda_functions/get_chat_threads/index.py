@@ -51,6 +51,7 @@ def lambda_handler(event, context):
     for thread in chat_threads_items:
         # chat_messagesテーブルから最新のメッセージを取得
         response = chat_messages_table.query(
+            IndexName="chat_thread_id",
             KeyConditionExpression=Key("chat_thread_id").eq(thread["chat_thread_id"]),
             Limit=1,
             ScanIndexForward=False,
