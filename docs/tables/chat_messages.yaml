@@ -23,10 +23,6 @@ chat_messages:
     type: string
     example: このコーヒーマシンはよくありません。
     description: メッセージの内容(日本語訳)
-  read:
-    type: bool
-    example: false
-    description: メッセージを読んだかどうか
   created_timestamp:
     type: number
     example: 1692432511

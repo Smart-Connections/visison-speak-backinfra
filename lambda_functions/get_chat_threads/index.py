@@ -63,10 +63,7 @@ def lambda_handler(event, context):
                 "image_url": generate_presigned_url(thread["image_path"]),
                 "topic": thread["topic"],
                 "updated_timestamp": int(thread["updated_timestamp"]),
-                "latest_message": {
-                    "english_message": latest_message["english_message"],
-                    "read": latest_message["read"],
-                }
+                "latest_message": latest_message["english_message"]
                 if latest_message
                 else None,
             }

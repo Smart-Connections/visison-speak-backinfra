@@ -14,6 +14,14 @@ resource "aws_dynamodb_table" "chat_threads" {
     type = "N"
   }
 
+  global_secondary_index {
+    name            = "ChatThreadIdIndex"
+    hash_key        = "chat_thread_id"
+    projection_type = "KEYS_ONLY"
+    read_capacity   = 5
+    write_capacity  = 5
+  }
+
   hash_key  = "cognito_user_id"
   range_key = "updated_timestamp"
 }
