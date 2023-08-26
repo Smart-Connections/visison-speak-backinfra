@@ -1,0 +1,25 @@
+chat_threads:
+  chat_thread_id:
+    type: string
+    example: 550e8400-e29b-41d4-a716-446655440000
+    description: 新規作成時に、Lambda内でUUIDを生成して、その値を設定する
+  cognito_user_id:
+    type: string
+    example: abcde-fg-12345
+    description: tokenから取得したCognitoのUserIDを格納する
+  image_path:
+    type: string
+    example: chat_threads/image_path/550e8400-e29b-41d4-a716-446655440000/xxxxx.jpeg
+    description: アップロードした画像のS3のパス
+  topic:
+    type: string
+    example: コーヒーマシン
+    description: 何について話すか
+  created_timestamp:
+    type: number
+    example: 1692432511
+    description: 作成日時のunix timestamp。使わない可能性あるけど、一応用意しておく
+  updated_timestamp:
+    type: number
+    example: 1692432511
+    description: 更新日時のunix timestamp
