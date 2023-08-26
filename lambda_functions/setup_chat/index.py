@@ -43,7 +43,7 @@ def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or "application/octet-stream"
 
 
-def generate_presigned_url(bucket_name, object_key, expiration=300):
+def generate_presigned_url(object_key, expiration=300):
     try:
         # 署名付きURLの生成
         url = s3_client.generate_presigned_url(
@@ -101,9 +101,7 @@ def lambda_handler(event, context):
     # テーブルに保存
     chat_threads_table.put_item(Item=chat_thread)
 
-    presigned_url = generate_presigned_url(
-        bucket_name=bucket_name, object_key=s3_object_key
-    )
+    presigned_url = generate_presigned_url(object_key=s3_object_key)
 
     # image_analysis = client.analyze_image(presigned_url, visual_features=[VisualFeatureTypes.tags])
 

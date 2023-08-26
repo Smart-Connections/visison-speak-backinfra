@@ -26,6 +26,11 @@ module "api_gateway_resources" {
       lambda_invoke_arn    = module.lambda_functions["setup_chat"].invoke_arn
       response_status_code = "201"
     },
+    "v1_get_chat_threads" = {
+      http_method          = "GET"
+      lambda_invoke_arn    = module.lambda_functions["get_chat_threads"].invoke_arn
+      response_status_code = "200"
+    },
   }
   source                    = "./modules/api_gateway_resource"
   rest_api_id               = aws_api_gateway_rest_api.main.id

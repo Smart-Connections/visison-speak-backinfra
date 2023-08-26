@@ -30,6 +30,14 @@ module "lambda_functions" {
         "ENV"                     = var.environment
       }
     },
+    "get_chat_threads" = {
+      lambda_environments = {
+        "CHAT_THREADS_TABLE_NAME"  = aws_dynamodb_table.chat_threads.name
+        "CHAT_MESSAGES_TABLE_NAME" = aws_dynamodb_table.chat_messages.name
+        "BUCKET_NAME"              = aws_s3_bucket.vision_speak.id
+        "ENV"                      = var.environment
+      }
+    },
     "cognito_user_auto_confirm" = {
       lambda_environments = {
         "ENV" = var.environment
