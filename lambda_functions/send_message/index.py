@@ -37,7 +37,7 @@ def lambda_handler(event, context):
     if not response["Item"]:
         return {"statusCode": 403, "body": json.dumps({"message": "Not authorized."})}
 
-    chat_thread = response["Items"]
+    chat_thread = response["Item"]
 
     if not chat_thread["cognito_user_id"] == cognito_user_id:
         return {"statusCode": 403, "body": json.dumps({"message": "Not authorized."})}
