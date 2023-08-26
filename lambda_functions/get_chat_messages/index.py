@@ -44,7 +44,7 @@ def lambda_handler(event, context):
     response = chat_messages_table.query(
         IndexName="chat_thread_id",
         KeyConditionExpression=Key("chat_thread_id").eq(chat_thread["chat_thread_id"]),
-        ScanIndexForward=False,
+        ScanIndexForward=True,
     )
 
     chat_messages = response["Items"]
