@@ -20,7 +20,7 @@ resource "aws_cognito_user_pool_domain" "main" {
 resource "aws_cognito_user_pool_client" "mobile_app" {
   allowed_oauth_flows                  = ["implicit", "code"]
   allowed_oauth_flows_user_pool_client = true
-  allowed_oauth_scopes                 = []
+  allowed_oauth_scopes                 = ["openid"]
   callback_urls                        = ["https://example.com/callback"]
   explicit_auth_flows                  = ["ALLOW_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_USER_SRP_AUTH"]
   name                                 = "mobile_app"
