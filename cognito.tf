@@ -26,11 +26,6 @@ resource "aws_cognito_user_pool_client" "mobile_app" {
   name                                 = "mobile_app"
   supported_identity_providers         = ["COGNITO"]
   user_pool_id                         = aws_cognito_user_pool.main.id
-  token_validity_units {
-    access_token  = "minutes"
-    id_token      = "minutes"
-    refresh_token = "days"
-  }
 }
 
 resource "aws_cognito_resource_server" "api" {
