@@ -5,7 +5,6 @@ variable "http_method" {}
 variable "authorizer_id" {}
 variable "lambda_invoke_arn" {}
 variable "response_status_code" {}
-variable "authorization_scopes" {}
 
 resource "aws_api_gateway_resource" "main" {
   rest_api_id = var.rest_api_id
@@ -14,12 +13,11 @@ resource "aws_api_gateway_resource" "main" {
 }
 
 resource "aws_api_gateway_method" "main" {
-  rest_api_id          = var.rest_api_id
-  resource_id          = aws_api_gateway_resource.main.id
-  http_method          = var.http_method
-  authorization        = "COGNITO_USER_POOLS"
-  authorizer_id        = var.authorizer_id
-  authorization_scopes = var.authorization_scopes
+  rest_api_id   = var.rest_api_id
+  resource_id   = aws_api_gateway_resource.main.id
+  http_method   = var.http_method
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = var.authorizer_id
 }
 
 resource "aws_api_gateway_integration" "main" {

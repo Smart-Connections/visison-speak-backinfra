@@ -48,7 +48,6 @@ module "api_gateway_resources" {
   path                      = each.key
   http_method               = each.value["http_method"]
   authorizer_id             = aws_api_gateway_authorizer.cognito.id
-  authorization_scopes      = aws_cognito_resource_server.api.scope_identifiers
   lambda_invoke_arn         = each.value["lambda_invoke_arn"]
   response_status_code      = each.value["response_status_code"]
 }
