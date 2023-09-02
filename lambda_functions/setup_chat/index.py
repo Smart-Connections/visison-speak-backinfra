@@ -102,9 +102,13 @@ def lambda_handler(event, context):
 
     presigned_url = generate_presigned_url(object_key=s3_object_key)
 
-    image_analysis = client.analyze_image(
-        presigned_url, visual_features=[VisualFeatureTypes.tags]
-    )
+    image_analysis_description = client.analyze_image(
+        presigned_url, visual_features=[VisualFeatureTypes.description])
+    image_analysis_tags = client.analyze_image(
+        presigned_url, visual_features=[VisualFeatureTypes.tags])
+
+    description = image_analysis_description.description.captions[0].text
+    tags = [{"tag": tag.name, "confidence": tag.confidence} for tag in image_analysis_tags.tags]
 
     return {
         "statusCode": 201,
@@ -112,7 +116,8 @@ def lambda_handler(event, context):
             {
                 "chat_thread_id": chat_thread_id,
                 "presigned_url": presigned_url,
-                "image_analysis": image_analysis,
+                "description": description,
+                "tags": tags,   
             }
         ),
     }
