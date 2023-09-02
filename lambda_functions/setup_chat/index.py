@@ -103,7 +103,8 @@ def lambda_handler(event, context):
     presigned_url = generate_presigned_url(object_key=s3_object_key)
 
     image_analysis = client.analyze_image(
-        presigned_url, visual_features=[VisualFeatureTypes.tags])
+        presigned_url, visual_features=[VisualFeatureTypes.tags]
+    )
 
     return {
         "statusCode": 201,
