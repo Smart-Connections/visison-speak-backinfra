@@ -9,10 +9,9 @@ import os
 import uuid
 import mimetypes
 
-# Azureのサービス使うときはコメントアウト解除
-# from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-# from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
-# from msrest.authentication import CognitiveServicesCredentials
+from azure.cognitiveservices.vision.computervision import ComputerVisionClient
+from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
+from msrest.authentication import CognitiveServicesCredentials
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -25,12 +24,11 @@ azure_account_region = os.environ["AZURE_ACCOUNT_REGION"]
 azure_account_key = os.environ["AZURE_ACCOUNT_KEY"]
 bucket_name = os.environ["BUCKET_NAME"]
 
-# Azureのサービス使うときはコメントアウト解除
-# credentials = CognitiveServicesCredentials(azure_account_key)
-# client = ComputerVisionClient(
-#     endpoint="https://" + azure_account_region + ".api.cognitive.microsoft.com/",
-#     credentials=credentials,
-# )
+credentials = CognitiveServicesCredentials(azure_account_key)
+client = ComputerVisionClient(
+    endpoint="https://" + azure_account_region + ".api.cognitive.microsoft.com/",
+    credentials=credentials,
+)
 
 
 def get_file_extension(original_filename):
@@ -104,15 +102,16 @@ def lambda_handler(event, context):
 
     presigned_url = generate_presigned_url(object_key=s3_object_key)
 
-    # image_analysis = client.analyze_image(presigned_url, visual_features=[VisualFeatureTypes.tags])
+    image_analysis = client.analyze_image(
+        presigned_url, visual_features=[VisualFeatureTypes.tags])
 
     return {
         "statusCode": 201,
         "body": json.dumps(
             {
                 "chat_thread_id": chat_thread_id,
-                "presigned_url": presigned_url
-                # "image_analysis": image_analysis,
+                "presigned_url": presigned_url,
+                "image_analysis": image_analysis,
             }
         ),
     }
