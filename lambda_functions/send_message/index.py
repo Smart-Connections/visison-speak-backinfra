@@ -4,12 +4,13 @@ import os
 import uuid
 import datetime
 import time
+import openai
+import base64
 from boto3.dynamodb.conditions import Key
 
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
-dynamodb = boto3.resource(
-    "dynamodb",
-)
+dynamodb = boto3.resource("dynamodb")
 chat_threads_table_name = os.environ["CHAT_THREADS_TABLE_NAME"]
 chat_messages_table_name = os.environ["CHAT_MESSAGES_TABLE_NAME"]
 
@@ -24,9 +25,9 @@ def lambda_handler(event, context):
     cognito_user_id = claims["sub"]
     # API Gatewayからのイベントデータの解析
     body = json.loads(event["body"])
-    message = body["message"]
-    # TODO 音声ファイルのbase64エンコード文字列が来た場合の変数
-    # message_voice = body["message_voice"]
+    message = body.get("message", '')
+    # base64でエンコードされた音声データ
+    message_voice = body.get("message_voice", '')
     chat_thread_id = body["chat_thread_id"]
 
     response = chat_threads_table.get_item(
@@ -42,6 +43,7 @@ def lambda_handler(event, context):
 
     if not chat_thread["cognito_user_id"] == cognito_user_id:
         return {"statusCode": 403, "body": json.dumps({"message": "Not authorized."})}
+    
     if chat_thread["topic"] == "":
         return {
             "statusCode": 404,
@@ -56,9 +58,11 @@ def lambda_handler(event, context):
         ExpressionAttributeValues={":value": int(datetime.datetime.now().timestamp())},
         ReturnValues="UPDATED_NEW",
     )
-    ########################################################
-    # TODO 音声ファイルが来た場合の処理を追加すること
-    ########################################################
+    
+    # whisper apiを呼び出してメッセージを取得
+    if (message_voice != ""):
+        whisper_api_result = call_whisper_api(message_voice)
+        message = whisper_api_result["text"]
 
     user_sended_chat_message = {
         "chat_message_id": str(uuid.uuid4()),
@@ -73,21 +77,19 @@ def lambda_handler(event, context):
     # テーブルに保存
     chat_messages_table.put_item(Item=user_sended_chat_message)
 
-    ########################################################
-    # TODO ChatGPTのAPIを叩く処理を実装すること
-    ########################################################
-
-    # とりあえずタイムスリープして、created_timestampが同じにならないようにする
-    # TODO GPTのAPIの実装がちゃんとできたら削除する
-    time.sleep(1)
+    chat_gpt_result = call_chat_gpt()
+    arguments_str = chat_gpt_result["choices"][0]["message"]["function_call"]["arguments"]
+    arguments_dict = json.loads(arguments_str)
+    english_message = arguments_dict["english_message"]
+    japanese_translated_message = arguments_dict["japanese_translated_message"]
 
     ai_sended_chat_message = {
         "chat_message_id": str(uuid.uuid4()),
         "chat_thread_id": chat_thread["chat_thread_id"],
         "cognito_user_id": chat_thread["cognito_user_id"],
         "sender_type": "AI",
-        "english_message": "Hello, World!",  # とりあえずハードコード
-        "japanese_message": "ハロー、ワールド！",  # とりあえずハードコード
+        "english_message": english_message,
+        "japanese_message": japanese_translated_message,
         "created_timestamp": int(datetime.datetime.now().timestamp()),
     }
     # テーブルに保存
@@ -102,3 +104,51 @@ def lambda_handler(event, context):
             }
         ),
     }
+
+def call_whisper_api(base64_audio_string):
+    file_path = '/tmp/audio.mp3'
+    with open(file_path, 'wb') as f:
+        f.write(base64.b64decode(base64_audio_string))
+
+    with open(file_path, 'rb') as f:
+        return openai.Audio.transcribe("whisper-1", f)
+
+def call_chat_gpt():
+
+    functions = [
+        {
+            "name": "create_response_messages",
+            "description": "ユーザーへのメッセージを英語と日本語で生成する。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "english_message": {
+                        "type": "string",
+                        "description": "英語のメッセージ",
+                    },
+                    "japanese_translated_message": {
+                        "type": "string",
+                        "description": "日本語訳されたメッセージ",
+                    },
+                },
+                "required": [
+                    "message",
+                    "japanese_translated_message",
+                ],
+            },
+        }
+    ]
+
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k-0613",
+        messages=[
+            {
+                "role": "system",
+                "content": "あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「a desk with a computer and a chair」が映っています。「a desk with a computer and a chair」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。",
+            },
+        ],
+        functions=functions,
+        function_call={"name": "create_response_messages"},
+    )
+
+    return completion

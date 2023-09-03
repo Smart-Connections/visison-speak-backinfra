@@ -49,6 +49,7 @@ module "lambda_functions" {
       lambda_environments = {
         "CHAT_THREADS_TABLE_NAME"  = aws_dynamodb_table.chat_threads.name
         "CHAT_MESSAGES_TABLE_NAME" = aws_dynamodb_table.chat_messages.name
+        "OPENAI_API_KEY"           = var.openai_api_key
         "ENV"                      = var.environment
       }
     },

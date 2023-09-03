@@ -12,3 +12,6 @@ variable "azure_account_region" {
 variable "azure_account_key" {
   description = "AzureのComputerVisionClientを利用するためのアカウントキー。"
 }
+variable "openai_api_key" {
+  description = "OpenAIのAPIキー"
+}

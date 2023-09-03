@@ -87,28 +87,28 @@ def lambda_handler(event, context):
         ContentType=content_type,
     )
 
+    presigned_url = generate_presigned_url(object_key=s3_object_key)
+
+    # Azure Computer Vision APIを使って画像の解析
+    image_analysis_description = client.analyze_image(
+        presigned_url, visual_features=[VisualFeatureTypes.description])
+    image_analysis_tags = client.analyze_image(
+        presigned_url, visual_features=[VisualFeatureTypes.tags])
+    description = image_analysis_description.description.captions[0].text
+    tags = [{"tag": tag.name, "confidence": tag.confidence} for tag in image_analysis_tags.tags]
+
     created_timestamp = int(datetime.datetime.now().timestamp())
     chat_thread = {
         "chat_thread_id": chat_thread_id,
         "cognito_user_id": user_id,
         "image_path": s3_object_key,
-        "topic": "",
+        "topic": description,
         "created_timestamp": created_timestamp,
         "updated_timestamp": created_timestamp,
     }
 
     # テーブルに保存
     chat_threads_table.put_item(Item=chat_thread)
-
-    presigned_url = generate_presigned_url(object_key=s3_object_key)
-
-    image_analysis_description = client.analyze_image(
-        presigned_url, visual_features=[VisualFeatureTypes.description])
-    image_analysis_tags = client.analyze_image(
-        presigned_url, visual_features=[VisualFeatureTypes.tags])
-
-    description = image_analysis_description.description.captions[0].text
-    tags = [{"tag": tag.name, "confidence": tag.confidence} for tag in image_analysis_tags.tags]
 
     return {
         "statusCode": 201,
