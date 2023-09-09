@@ -10,6 +10,7 @@ from boto3.dynamodb.conditions import Key
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
+dynamodbClient = boto3.client("dynamodb")
 dynamodb = boto3.resource("dynamodb")
 chat_threads_table_name = os.environ["CHAT_THREADS_TABLE_NAME"]
 chat_messages_table_name = os.environ["CHAT_MESSAGES_TABLE_NAME"]
@@ -60,7 +61,7 @@ def lambda_handler(event, context):
     )
     
     # whisper apiを呼び出してメッセージを取得
-    if (message_voice != ""):
+    if message_voice:
         whisper_api_result = call_whisper_api(message_voice)
         message = whisper_api_result["text"]
 
@@ -77,7 +78,18 @@ def lambda_handler(event, context):
     # テーブルに保存
     chat_messages_table.put_item(Item=user_sended_chat_message)
 
-    chat_gpt_result = call_chat_gpt()
+    res = dynamodbClient.query(
+        TableName='chat_messages-prod',
+        IndexName='chat_thread_id',
+        KeyConditionExpression="chat_thread_id = :chat_thread_id",
+        ExpressionAttributeValues={
+            ":chat_thread_id": {"S": chat_thread["chat_thread_id"]}
+        },
+        ScanIndexForward=True
+    )
+    print("res", res)
+    print(res["Items"])
+    chat_gpt_result = call_chat_gpt(res["Items"])
     arguments_str = chat_gpt_result["choices"][0]["message"]["function_call"]["arguments"]
     arguments_dict = json.loads(arguments_str)
     english_message = arguments_dict["english_message"]
@@ -113,7 +125,7 @@ def call_whisper_api(base64_audio_string):
     with open(file_path, 'rb') as f:
         return openai.Audio.transcribe("whisper-1", f)
 
-def call_chat_gpt():
+def call_chat_gpt(messages):
 
     functions = [
         {
@@ -141,14 +153,32 @@ def call_chat_gpt():
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k-0613",
-        messages=[
-            {
-                "role": "system",
-                "content": "あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「a desk with a computer and a chair」が映っています。「a desk with a computer and a chair」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。",
-            },
-        ],
+        messages=format_data(messages),
         functions=functions,
         function_call={"name": "create_response_messages"},
     )
 
     return completion
+
+def format_data(original_data):
+    formatted_data = [
+        {
+                "role": "system",
+                "content": "あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「a desk with a computer and a chair」が映っています。「a desk with a computer and a chair」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。",
+            }
+    ]
+    for item in original_data:
+        sender_type = item.get('sender_type', {}).get('S', "")
+        if sender_type.lower() == 'user':
+            role = 'user'
+        elif sender_type.lower() == 'ai':
+            role = 'assistant'
+        else:
+            role = sender_type
+        formatted_item = {
+            "role": role,
+            "content": item.get('english_message', {}).get('S', "")
+        }
+        formatted_data.append(formatted_item)
+    print("formatted_data", formatted_data)
+    return formatted_data
