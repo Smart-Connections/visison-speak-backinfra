@@ -3,9 +3,7 @@ import json
 import os
 import uuid
 import datetime
-import time
 import openai
-import base64
 from boto3.dynamodb.conditions import Key
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
@@ -27,8 +25,6 @@ def lambda_handler(event, context):
     # API Gatewayからのイベントデータの解析
     body = json.loads(event["body"])
     message = body.get("message", '')
-    # base64でエンコードされた音声データ
-    message_voice = body.get("message_voice", '')
     chat_thread_id = body["chat_thread_id"]
 
     response = chat_threads_table.get_item(
@@ -59,11 +55,6 @@ def lambda_handler(event, context):
         ExpressionAttributeValues={":value": int(datetime.datetime.now().timestamp())},
         ReturnValues="UPDATED_NEW",
     )
-    
-    # whisper apiを呼び出してメッセージを取得
-    if message_voice:
-        whisper_api_result = call_whisper_api(message_voice)
-        message = whisper_api_result["text"]
 
     user_sended_chat_message = {
         "chat_message_id": str(uuid.uuid4()),
@@ -89,7 +80,7 @@ def lambda_handler(event, context):
     )
     print("res", res)
     print(res["Items"])
-    chat_gpt_result = call_chat_gpt(res["Items"])
+    chat_gpt_result = call_chat_gpt(res["Items"], chat_thread["topic"])
     arguments_str = chat_gpt_result["choices"][0]["message"]["function_call"]["arguments"]
     arguments_dict = json.loads(arguments_str)
     english_message = arguments_dict["english_message"]
@@ -117,15 +108,7 @@ def lambda_handler(event, context):
         ),
     }
 
-def call_whisper_api(base64_audio_string):
-    file_path = '/tmp/audio.mp3'
-    with open(file_path, 'wb') as f:
-        f.write(base64.b64decode(base64_audio_string))
-
-    with open(file_path, 'rb') as f:
-        return openai.Audio.transcribe("whisper-1", f)
-
-def call_chat_gpt(messages):
+def call_chat_gpt(messages, topic):
 
     functions = [
         {
@@ -153,18 +136,18 @@ def call_chat_gpt(messages):
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k-0613",
-        messages=format_data(messages),
+        messages=format_data(messages, topic),
         functions=functions,
         function_call={"name": "create_response_messages"},
     )
 
     return completion
 
-def format_data(original_data):
+def format_data(original_data, topic):
     formatted_data = [
         {
                 "role": "system",
-                "content": "あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「a desk with a computer and a chair」が映っています。「a desk with a computer and a chair」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。",
+                "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。あなたが返すメッセージはできるだけ疑問文で返してください。",
             }
     ]
     for item in original_data:

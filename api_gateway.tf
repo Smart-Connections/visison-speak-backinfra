@@ -46,6 +46,11 @@ module "api_gateway_resources" {
       lambda_invoke_arn    = module.lambda_functions["search_vocabulary"].invoke_arn
       response_status_code = "200"
     },
+    "v1_transcript" = {
+      http_method          = "POST"
+      lambda_invoke_arn    = module.lambda_functions["transcript"].invoke_arn
+      response_status_code = "200"
+    },
   }
   source                    = "./modules/api_gateway_resource"
   rest_api_id               = aws_api_gateway_rest_api.main.id
