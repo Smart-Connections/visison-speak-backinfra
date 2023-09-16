@@ -1,5 +1,4 @@
 import datetime
-import time
 import json
 import base64
 import boto3
@@ -8,10 +7,13 @@ import logging
 import os
 import uuid
 import mimetypes
+import openai
 
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
 from msrest.authentication import CognitiveServicesCredentials
+
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -58,6 +60,7 @@ def generate_presigned_url(object_key, expiration=300):
 
 def lambda_handler(event, context):
     chat_threads_table = dynamodb.Table(os.environ["CHAT_THREADS_TABLE_NAME"])
+    chat_messages_table = dynamodb.Table(os.environ["CHAT_MESSAGES_TABLE_NAME"])
 
     # requestContext 内の authorizer オブジェクトからクレームを取得
     claims = event["requestContext"]["authorizer"]["claims"]
@@ -110,14 +113,93 @@ def lambda_handler(event, context):
     # テーブルに保存
     chat_threads_table.put_item(Item=chat_thread)
 
+    chat_gpt_result = call_chat_gpt([], description)
+    arguments_str = chat_gpt_result["choices"][0]["message"]["function_call"]["arguments"]
+    arguments_dict = json.loads(arguments_str)
+    print(arguments_str, arguments_dict)
+    english_message = arguments_dict["english_message"]
+    japanese_translated_message = arguments_dict["japanese_translated_message"]
+
+    ai_sended_chat_message = {
+        "chat_message_id": str(uuid.uuid4()),
+        "chat_thread_id": chat_thread["chat_thread_id"],
+        "cognito_user_id": chat_thread["cognito_user_id"],
+        "sender_type": "AI",
+        "english_message": english_message,
+        "japanese_message": japanese_translated_message,
+        "created_timestamp": int(datetime.datetime.now().timestamp()),
+    }
+    # テーブルに保存
+    chat_messages_table.put_item(Item=ai_sended_chat_message)
+
     return {
         "statusCode": 201,
         "body": json.dumps(
             {
                 "chat_thread_id": chat_thread_id,
                 "presigned_url": presigned_url,
+                "english_message": english_message,
+                "japanese_message": japanese_translated_message,
                 "description": description,
                 "tags": tags,   
             }
         ),
     }
+
+def call_chat_gpt(messages, topic):
+
+    functions = [
+        {
+            "name": "create_response_messages",
+            "description": "ユーザーへのメッセージを英語と日本語で生成する。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "english_message": {
+                        "type": "string",
+                        "description": "英語のメッセージ",
+                    },
+                    "japanese_translated_message": {
+                        "type": "string",
+                        "description": "日本語訳されたメッセージ",
+                    },
+                },
+                "required": [
+                    "english_message",
+                    "japanese_translated_message",
+                ],
+            },
+        }
+    ]
+
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k-0613",
+        messages=format_data(messages, topic),
+        functions=functions,
+        function_call={"name": "create_response_messages"},
+    )
+
+    return completion
+
+def format_data(original_data, topic):
+    formatted_data = [
+            {
+                "role": "system",
+                "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。リアクション良く会話をしてください。",
+            }
+    ]
+    for item in original_data:
+        sender_type = item.get('sender_type', {}).get('S', "")
+        if sender_type.lower() == 'user':
+            role = 'user'
+        elif sender_type.lower() == 'ai':
+            role = 'assistant'
+        else:
+            role = sender_type
+        formatted_item = {
+            "role": role,
+            "content": item.get('english_message', {}).get('S', "")
+        }
+        formatted_data.append(formatted_item)
+    print("formatted_data", formatted_data)
+    return formatted_data

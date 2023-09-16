@@ -23,11 +23,13 @@ module "lambda_functions" {
     },
     "setup_chat" = {
       lambda_environments = {
-        "CHAT_THREADS_TABLE_NAME" = aws_dynamodb_table.chat_threads.name
-        "BUCKET_NAME"             = aws_s3_bucket.vision_speak.id
-        "AZURE_ACCOUNT_REGION"    = var.azure_account_region
-        "AZURE_ACCOUNT_KEY"       = var.azure_account_key
-        "ENV"                     = var.environment
+        "CHAT_THREADS_TABLE_NAME"  = aws_dynamodb_table.chat_threads.name
+        "CHAT_MESSAGES_TABLE_NAME" = aws_dynamodb_table.chat_messages.name
+        "BUCKET_NAME"              = aws_s3_bucket.vision_speak.id
+        "AZURE_ACCOUNT_REGION"     = var.azure_account_region
+        "AZURE_ACCOUNT_KEY"        = var.azure_account_key
+        "OPENAI_API_KEY"           = var.openai_api_key
+        "ENV"                      = var.environment
       }
     },
     "get_chat_threads" = {

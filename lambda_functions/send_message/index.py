@@ -127,7 +127,7 @@ def call_chat_gpt(messages, topic):
                     },
                 },
                 "required": [
-                    "message",
+                    "english_message",
                     "japanese_translated_message",
                 ],
             },
@@ -145,9 +145,9 @@ def call_chat_gpt(messages, topic):
 
 def format_data(original_data, topic):
     formatted_data = [
-        {
+            {
                 "role": "system",
-                "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。あなたが返すメッセージはできるだけ疑問文で返してください。",
+                "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。リアクション良く会話をしてください。",
             }
     ]
     for item in original_data:
