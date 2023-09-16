@@ -23,6 +23,11 @@ def lambda_handler(event, context):
         arguments_dict["3"],
         arguments_dict["4"],
         arguments_dict["5"],
+        arguments_dict["6"],
+        arguments_dict["7"],
+        arguments_dict["8"],
+        arguments_dict["9"],
+        arguments_dict["10"],
     ]
 
     return {
@@ -35,7 +40,7 @@ def call_chat_gpt(keyword, situation, style, difficulty, type):
     functions = [
         {
             "name": "search_english_vocabulary",
-            "description": f"ユーザーから送られたキーワードと条件に合致する{type}を5つ返す",
+            "description": f"ユーザーから送られたキーワードと条件に合致する{type}を10個返す",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -59,6 +64,26 @@ def call_chat_gpt(keyword, situation, style, difficulty, type):
                         "type": "string",
                         "description": f"{type}5",
                     },
+                    "6": {
+                        "type": "string",
+                        "description": f"{type}6",
+                    },
+                    "7": {
+                        "type": "string",
+                        "description": f"{type}7",
+                    },
+                    "8": {
+                        "type": "string",
+                        "description": f"{type}8",
+                    },
+                    "9": {
+                        "type": "string",
+                        "description": f"{type}9",
+                    },
+                    "10": {
+                        "type": "string",
+                        "description": f"{type}10",
+                    },
                 },
                 "required": [
                     "1",
@@ -66,6 +91,11 @@ def call_chat_gpt(keyword, situation, style, difficulty, type):
                     "3",
                     "4",
                     "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "10",
                 ],
             },
         }
@@ -77,7 +107,7 @@ def call_chat_gpt(keyword, situation, style, difficulty, type):
             {
                 "role": "system",
                 "content": f""""
-                あなたは英語学習アプリのアシスタントです。英語学習者に言われた条件の英語{type}を5つ返却してください。条件は以下です。
+                あなたは英語学習アプリのアシスタントです。英語学習者に言われた条件の英語{type}を10個返却してください。条件は以下です。
                 キーワード：{keyword}
                 シチュエーション：{situation}
                 スタイル：{style}
