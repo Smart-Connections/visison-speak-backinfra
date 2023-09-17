@@ -72,6 +72,12 @@ module "lambda_functions" {
         "ENV"            = var.environment
       }
     },
+    "feedback" = {
+      lambda_environments = {
+        "OPENAI_API_KEY" = var.openai_api_key
+        "ENV"            = var.environment
+      }
+    },
   }
   source              = "./modules/lambda"
   function_name       = each.key
