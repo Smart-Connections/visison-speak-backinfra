@@ -141,7 +141,6 @@ def call_chat_gpt(messages, topic):
         messages=format_data(messages, topic),
         functions=functions,
         function_call={"name": "create_response_messages"},
-        max_tokens=40,
     )
 
     return completion
@@ -151,7 +150,7 @@ def format_data(original_data, topic):
     formatted_data = [
         {
             "role": "system",
-            "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。リアクション良く会話をしてください。",
+            "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。リアクション良く会話をしてください。1メッセージは60単語以内にしてください",
         }
     ]
     for item in original_data:

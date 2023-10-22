@@ -67,7 +67,6 @@ def call_chat_gpt(message, words):
         messages=format_data(message, words),
         functions=functions,
         function_call={"name": "create_response_messages"},
-        max_tokens=60,
     )
 
     return completion
@@ -77,7 +76,7 @@ def format_data(message, words):
     formatted_data = [
         {
             "role": "system",
-            "content": f"あなたはAIチャットボットです。ユーザーと英会話をしました。会話内容について、ユーザーがより自然な英語が話せるようにフィードバックをしてください。また、ユーザーが会話の中で使うことを目標にしていた英単語は{words}です。メッセージにこれらが含まれていたら、使い方に対してもフィードバックをしてください。",
+            "content": f"あなたはAIチャットボットです。ユーザーと英会話をしました。会話内容について、ユーザーがより自然な英語が話せるようにフィードバックをしてください。また、ユーザーが会話の中で使うことを目標にしていた英単語は{words}です。メッセージにこれらが含まれていたら、使い方に対してもフィードバックをしてください。1メッセージは80単語以内にしてください",
         }
     ]
     formatted_data.append({
