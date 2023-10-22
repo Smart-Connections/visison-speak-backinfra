@@ -4,6 +4,7 @@ import openai
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
+
 def lambda_handler(event, context):
     # API Gatewayからのイベントデータの解析
     body = json.loads(event["body"])
@@ -13,27 +14,35 @@ def lambda_handler(event, context):
     difficulty = body["difficulty"]
     type = body["type"]
 
-    chat_gpt_result = call_chat_gpt(keyword, situation, style, difficulty, type)
+    chat_gpt_result = call_chat_gpt(
+        keyword, situation, style, difficulty, type)
     arguments_str = chat_gpt_result["choices"][0]["message"]["function_call"]["arguments"]
     arguments_dict = json.loads(arguments_str)
     print(arguments_str, arguments_dict)
     english_vocabulary_list = [
-        arguments_dict["1"],
-        arguments_dict["2"],
-        arguments_dict["3"],
-        arguments_dict["4"],
-        arguments_dict["5"],
-        arguments_dict["6"],
-        arguments_dict["7"],
-        arguments_dict["8"],
-        arguments_dict["9"],
-        arguments_dict["10"],
+        arguments_dict["1_en"],
+        arguments_dict["2_en"],
+        arguments_dict["3_en"],
+        arguments_dict["4_en"],
+        arguments_dict["5_en"],
+        arguments_dict["6_en"],
+        arguments_dict["7_en"],
+    ]
+    japanese_vocabulary_list = [
+        arguments_dict["1_ja"],
+        arguments_dict["2_ja"],
+        arguments_dict["3_ja"],
+        arguments_dict["4_ja"],
+        arguments_dict["5_ja"],
+        arguments_dict["6_ja"],
+        arguments_dict["7_ja"],
     ]
 
     return {
         "statusCode": 201,
-        "body": json.dumps({"english_vocabulary_list": english_vocabulary_list}),
+        "body": json.dumps({"english_vocabulary_list": english_vocabulary_list, "japanese_vocabulary_list": japanese_vocabulary_list}),
     }
+
 
 def call_chat_gpt(keyword, situation, style, difficulty, type):
 
@@ -44,58 +53,78 @@ def call_chat_gpt(keyword, situation, style, difficulty, type):
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "1": {
+                    "1_en": {
                         "type": "string",
                         "description": f"{type}1",
                     },
-                    "2": {
+                    "1_ja": {
+                        "type": "string",
+                        "description": f"{type}1の日本語",
+                    },
+                    "2_en": {
                         "type": "string",
                         "description": f"{type}2",
                     },
-                    "3": {
+                    "2_ja": {
+                        "type": "string",
+                        "description": f"{type}2の日本語",
+                    },
+                    "3_en": {
                         "type": "string",
                         "description": f"{type}3",
                     },
-                    "4": {
+                    "3_ja": {
+                        "type": "string",
+                        "description": f"{type}3の日本語",
+                    },
+                    "4_en": {
                         "type": "string",
                         "description": f"{type}4",
                     },
-                    "5": {
+                    "4_ja": {
+                        "type": "string",
+                        "description": f"{type}4の日本語",
+                    },
+                    "5_en": {
                         "type": "string",
                         "description": f"{type}5",
                     },
-                    "6": {
+                    "5_ja": {
+                        "type": "string",
+                        "description": f"{type}5の日本語",
+                    },
+                    "6_en": {
                         "type": "string",
                         "description": f"{type}6",
                     },
-                    "7": {
+                    "6_ja": {
+                        "type": "string",
+                        "description": f"{type}6の日本語",
+                    },
+                    "7_en": {
                         "type": "string",
                         "description": f"{type}7",
                     },
-                    "8": {
+                    "7_ja": {
                         "type": "string",
-                        "description": f"{type}8",
-                    },
-                    "9": {
-                        "type": "string",
-                        "description": f"{type}9",
-                    },
-                    "10": {
-                        "type": "string",
-                        "description": f"{type}10",
+                        "description": f"{type}7の日本語",
                     },
                 },
                 "required": [
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5",
-                    "6",
-                    "7",
-                    "8",
-                    "9",
-                    "10",
+                    "1_en",
+                    "1_ja",
+                    "2_en",
+                    "2_ja",
+                    "3_en",
+                    "3_ja",
+                    "4_en",
+                    "4_ja",
+                    "5_en",
+                    "5_ja",
+                    "6_en",
+                    "6_ja",
+                    "7_en",
+                    "7_ja",
                 ],
             },
         }
@@ -107,7 +136,7 @@ def call_chat_gpt(keyword, situation, style, difficulty, type):
             {
                 "role": "system",
                 "content": f""""
-                あなたは英語学習アプリのアシスタントです。英語学習者に言われた条件の英語{type}を10個返却してください。条件は以下です。
+                あなたは英語学習アプリのアシスタントです。英語学習者に言われた条件の英語{type}を10個返却してください。全て英語と日本語を返してください。条件は以下です。
                 キーワード：{keyword}
                 シチュエーション：{situation}
                 スタイル：{style}
