@@ -60,7 +60,8 @@ def generate_presigned_url(object_key, expiration=300):
 
 def lambda_handler(event, context):
     chat_threads_table = dynamodb.Table(os.environ["CHAT_THREADS_TABLE_NAME"])
-    chat_messages_table = dynamodb.Table(os.environ["CHAT_MESSAGES_TABLE_NAME"])
+    chat_messages_table = dynamodb.Table(
+        os.environ["CHAT_MESSAGES_TABLE_NAME"])
 
     # requestContext 内の authorizer オブジェクトからクレームを取得
     claims = event["requestContext"]["authorizer"]["claims"]
@@ -95,10 +96,12 @@ def lambda_handler(event, context):
     # Azure Computer Vision APIを使って画像の解析
     image_analysis_description = client.analyze_image(
         presigned_url, visual_features=[VisualFeatureTypes.description])
-    image_analysis_tags = client.analyze_image(
-        presigned_url, visual_features=[VisualFeatureTypes.tags])
+    # 現状タグは使用していないため、コメントアウト
+    # image_analysis_tags = client.analyze_image(
+    #     presigned_url, visual_features=[VisualFeatureTypes.tags])
     description = image_analysis_description.description.captions[0].text
-    tags = [{"tag": tag.name, "confidence": tag.confidence} for tag in image_analysis_tags.tags]
+    # tags = [{"tag": tag.name, "confidence": tag.confidence}
+    #         for tag in image_analysis_tags.tags]
 
     created_timestamp = int(datetime.datetime.now().timestamp())
     chat_thread = {
@@ -141,10 +144,11 @@ def lambda_handler(event, context):
                 "english_message": english_message,
                 "japanese_message": japanese_translated_message,
                 "description": description,
-                "tags": tags,   
+                # "tags": tags,
             }
         ),
     }
+
 
 def call_chat_gpt(messages, topic):
 
@@ -177,16 +181,18 @@ def call_chat_gpt(messages, topic):
         messages=format_data(messages, topic),
         functions=functions,
         function_call={"name": "create_response_messages"},
+        max_tokens=40,
     )
 
     return completion
 
+
 def format_data(original_data, topic):
     formatted_data = [
-            {
-                "role": "system",
-                "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。リアクション良く会話をしてください。",
-            }
+        {
+            "role": "system",
+            "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。リアクション良く会話をしてください。",
+        }
     ]
     for item in original_data:
         sender_type = item.get('sender_type', {}).get('S', "")

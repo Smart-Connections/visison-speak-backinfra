@@ -40,7 +40,7 @@ def lambda_handler(event, context):
 
     if not chat_thread["cognito_user_id"] == cognito_user_id:
         return {"statusCode": 403, "body": json.dumps({"message": "Not authorized."})}
-    
+
     if chat_thread["topic"] == "":
         return {
             "statusCode": 404,
@@ -52,7 +52,8 @@ def lambda_handler(event, context):
     chat_threads_table.update_item(
         Key={"chat_thread_id": chat_thread["chat_thread_id"]},
         UpdateExpression="SET updated_timestamp = :value",
-        ExpressionAttributeValues={":value": int(datetime.datetime.now().timestamp())},
+        ExpressionAttributeValues={":value": int(
+            datetime.datetime.now().timestamp())},
         ReturnValues="UPDATED_NEW",
     )
 
@@ -108,6 +109,7 @@ def lambda_handler(event, context):
         ),
     }
 
+
 def call_chat_gpt(messages, topic):
 
     functions = [
@@ -139,16 +141,18 @@ def call_chat_gpt(messages, topic):
         messages=format_data(messages, topic),
         functions=functions,
         function_call={"name": "create_response_messages"},
+        max_tokens=40,
     )
 
     return completion
 
+
 def format_data(original_data, topic):
     formatted_data = [
-            {
-                "role": "system",
-                "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。リアクション良く会話をしてください。",
-            }
+        {
+            "role": "system",
+            "content": f"あなたはAIチャットボットです。ユーザーから画像が送られました。ユーザーから送られた画像には「{topic}」が映っています。「{topic}」について、英語でユーザーと会話してください。日本語訳した文章も追加で生成する必要があります。リアクション良く会話をしてください。",
+        }
     ]
     for item in original_data:
         sender_type = item.get('sender_type', {}).get('S', "")

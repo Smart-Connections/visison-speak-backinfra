@@ -6,6 +6,7 @@ from enum import Enum
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
+
 def lambda_handler(event, context):
     # API Gatewayからのイベントデータの解析
     body = json.loads(event["body"])
@@ -20,13 +21,14 @@ def lambda_handler(event, context):
     return {
         "statusCode": 200,
         "body": json.dumps(
-            {            
+            {
                 "evaluation": arguments_dict["evaluation"],
                 "feedback": arguments_dict["feedback"],
                 "feedback_for_target_word": arguments_dict["feedback_for_target_word"],
             }
         ),
     }
+
 
 def call_chat_gpt(message, words):
 
@@ -65,16 +67,18 @@ def call_chat_gpt(message, words):
         messages=format_data(message, words),
         functions=functions,
         function_call={"name": "create_response_messages"},
+        max_tokens=60,
     )
 
     return completion
 
+
 def format_data(message, words):
     formatted_data = [
-            {
-                "role": "system",
-                "content": f"あなたはAIチャットボットです。ユーザーと英会話をしました。会話内容について、ユーザーがより自然な英語が話せるようにフィードバックをしてください。また、ユーザーが会話の中で使うことを目標にしていた英単語は{words}です。メッセージにこれらが含まれていたら、使い方に対してもフィードバックをしてください。",
-            }
+        {
+            "role": "system",
+            "content": f"あなたはAIチャットボットです。ユーザーと英会話をしました。会話内容について、ユーザーがより自然な英語が話せるようにフィードバックをしてください。また、ユーザーが会話の中で使うことを目標にしていた英単語は{words}です。メッセージにこれらが含まれていたら、使い方に対してもフィードバックをしてください。",
+        }
     ]
     formatted_data.append({
         "role": "user",
@@ -82,6 +86,7 @@ def format_data(message, words):
     })
     print("formatted_data", formatted_data)
     return formatted_data
+
 
 class Evaluation(Enum):
     GOOD = 1
