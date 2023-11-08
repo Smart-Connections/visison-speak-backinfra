@@ -29,6 +29,8 @@ def generate_presigned_url(object_key, expiration=300):
 
 
 def lambda_handler(event, context):
+    headerItem = event['headers']['Header-item']
+    print(headerItem)
     # DynamoDBオブジェクトを取得
     chat_threads_table = dynamodb.Table(chat_threads_table_name)
     chat_messages_table = dynamodb.Table(chat_messages_table_name)
@@ -52,7 +54,8 @@ def lambda_handler(event, context):
         # chat_messagesテーブルから最新のメッセージを取得
         response = chat_messages_table.query(
             IndexName="chat_thread_id",
-            KeyConditionExpression=Key("chat_thread_id").eq(thread["chat_thread_id"]),
+            KeyConditionExpression=Key("chat_thread_id").eq(
+                thread["chat_thread_id"]),
             Limit=1,
             ScanIndexForward=False,
         )
