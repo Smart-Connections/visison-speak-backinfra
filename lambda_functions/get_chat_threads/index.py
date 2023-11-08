@@ -29,8 +29,6 @@ def generate_presigned_url(object_key, expiration=300):
 
 
 def lambda_handler(event, context):
-    headerItem = event['headers']['Header-item']
-    print(headerItem)
     # DynamoDBオブジェクトを取得
     chat_threads_table = dynamodb.Table(chat_threads_table_name)
     chat_messages_table = dynamodb.Table(chat_messages_table_name)
@@ -38,12 +36,14 @@ def lambda_handler(event, context):
     claims = event["requestContext"]["authorizer"]["claims"]
     # Cognito の UserID (sub claim) を取得
     cognito_user_id = claims["sub"]
+    count = event['headers']['threads_count']
 
     # chat_threadsテーブルからcognito_user_idに一致するアイテムを取得
     response = chat_threads_table.query(
         IndexName="cognito_user_id",
         KeyConditionExpression=Key("cognito_user_id").eq(cognito_user_id),
         ScanIndexForward=False,  # 降順でソート
+        Limit=int(count)
     )
 
     chat_threads_items = response["Items"]
